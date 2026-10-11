@@ -35,7 +35,7 @@ async function ensureTableExists(db) {
       imageUrl TEXT NOT NULL,
       thumbUrl TEXT,
       tags TEXT,
-      references TEXT,
+      "references" TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -147,7 +147,7 @@ export default {
             id, imageNumber, title, gemType, taxonomy, origin,
             enhancement, lighting, photographer, fieldOfView,
             magnification, datePosted, description, imageUrl, thumbUrl,
-            tags, references, updated_at
+            tags, "references", updated_at
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
           ON CONFLICT(id) DO UPDATE SET
             imageNumber = excluded.imageNumber,
@@ -165,7 +165,7 @@ export default {
             imageUrl = excluded.imageUrl,
             thumbUrl = excluded.thumbUrl,
             tags = excluded.tags,
-            references = excluded.references,
+            "references" = excluded."references",
             updated_at = CURRENT_TIMESTAMP;
         `;
 
