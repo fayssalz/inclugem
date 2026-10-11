@@ -5,18 +5,5 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
-  "pages_build_output_dir": "dist",
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "hyperion-inclusions-db",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "IMAGES_BUCKET",
-      "bucket_name": "hyperion-inclusions-images"
-    }
-  ]
+  "pages_build_output_dir": "dist"
 }
