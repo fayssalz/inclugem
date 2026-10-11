@@ -7,7 +7,7 @@ export async function fetchLiveHyperionInclusions(filters = {}, start = 0) {
   queryParams.set('filter[search]', filters.search || '');
   queryParams.set('start', String(start));
 
-  const proxyUrl = `/api/hyperion/index.php/resources/hyperion-inclusion-search?${queryParams.toString()}`;
+  const proxyUrl = `/api/hyperion?${queryParams.toString()}`;
   const directUrl = `https://corsproxy.io/?${encodeURIComponent('https://www.lotusgemology.com/index.php/resources/hyperion-inclusion-search?' + queryParams.toString())}`;
 
   let htmlText = '';
@@ -16,7 +16,7 @@ export async function fetchLiveHyperionInclusions(filters = {}, start = 0) {
     if (!res.ok) throw new Error(`Proxy HTTP error! status: ${res.status}`);
     htmlText = await res.text();
   } catch (err) {
-    console.warn('Vite proxy failed, trying fallback CORS proxy:', err);
+    console.warn('Vite/Cloudflare proxy failed, trying fallback CORS proxy:', err);
     try {
       const res = await fetch(directUrl);
       if (!res.ok) throw new Error(`CORS proxy HTTP error! status: ${res.status}`);
@@ -92,7 +92,6 @@ export async function fetchLiveHyperionInclusions(filters = {}, start = 0) {
       pTags.forEach(p => {
         const text = p.textContent || '';
 
-        // Check metadata paragraph (contains bullet points or •)
         if (text.includes('•') || text.includes('Enhancements:') || text.includes('Lighting Conditions:')) {
           const parts = text.split('•').map(s => s.trim());
           if (parts.length > 0) {
@@ -137,7 +136,6 @@ export async function fetchLiveHyperionInclusions(filters = {}, start = 0) {
           }
         }
 
-        // Check reference links
         const aRef = p.querySelector('a[target="_blank"]');
         if (aRef) {
           references.push({

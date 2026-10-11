@@ -1,6 +1,6 @@
 /**
  * Cloudflare Pages Function API Handler
- * Handles D1 Database queries, R2 Image Uploads & Serving, and CORS.
+ * Handles D1 Database queries, R2 Image Uploads & Serving, Lotus Proxy, and CORS.
  */
 
 // Utility: Helper for JSON responses with CORS headers
@@ -64,6 +64,24 @@ export async function onRequest(context) {
   }
 
   try {
+    // ROUTE: GET /api/hyperion (Proxy for Lotus Gemology Live Search)
+    if (path.startsWith('hyperion')) {
+      const lotusUrl = `https://www.lotusgemology.com/index.php/resources/hyperion-inclusion-search${url.search}`;
+      const lotusRes = await fetch(lotusUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+      const htmlText = await lotusRes.text();
+      return new Response(htmlText, {
+        status: lotusRes.status,
+        headers: {
+          'Content-Type': 'text/html;charset=UTF-8',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
     // ROUTE: GET /api/images/* (Serve images stored in R2)
     if (path.startsWith('images/')) {
       const key = path; // e.g., 'images/171234567-photo.png'
@@ -85,7 +103,7 @@ export async function onRequest(context) {
     // ROUTE: GET /api/inclusions (Fetch all records from D1)
     if (path === 'inclusions' && request.method === 'GET') {
       if (!env.DB) {
-        return jsonResponse({ success: false, error: 'D1 Database (DB) is not bound.' }, 500);
+        return jsonResponse({ success: false, error: 'D1 Database (DB) is not bound in Cloudflare Settings -> Functions -> D1 database bindings.' }, 500);
       }
       await ensureTableExists(env.DB);
 
@@ -120,7 +138,7 @@ export async function onRequest(context) {
     // ROUTE: POST /api/inclusions (Save or delete record in D1)
     if (path === 'inclusions' && request.method === 'POST') {
       if (!env.DB) {
-        return jsonResponse({ success: false, error: 'D1 Database (DB) is not bound.' }, 500);
+        return jsonResponse({ success: false, error: 'D1 Database (DB) is not bound in Cloudflare Settings -> Functions -> D1 database bindings.' }, 500);
       }
       await ensureTableExists(env.DB);
 
@@ -198,7 +216,7 @@ export async function onRequest(context) {
     // ROUTE: POST /api/upload (Upload image to Cloudflare R2)
     if (path === 'upload' && request.method === 'POST') {
       if (!env.IMAGES_BUCKET) {
-        return jsonResponse({ success: false, error: 'R2 bucket (IMAGES_BUCKET) is not bound.' }, 500);
+        return jsonResponse({ success: false, error: 'R2 bucket (IMAGES_BUCKET) is not bound in Cloudflare Settings -> Functions -> R2 bucket bindings.' }, 500);
       }
 
       let imageBytes;
@@ -248,7 +266,6 @@ export async function onRequest(context) {
         httpMetadata: { contentType }
       });
 
-      // Construct public URL path
       const imagePath = `/api/${key}`;
 
       return jsonResponse({
@@ -257,40 +274,6 @@ export async function onRequest(context) {
         thumbUrl: imagePath,
         key
       });
-    }
-
-    // ROUTE: POST /api/proxy-sheet (Optional Proxy for Google Sheets)
-    if (path === 'proxy-sheet' && request.method === 'POST') {
-      const scriptUrl = env.GOOGLE_SCRIPT_URL;
-      if (!scriptUrl) {
-        return jsonResponse({ success: false, error: 'GOOGLE_SCRIPT_URL variable is not configured on Cloudflare.' }, 500);
-      }
-      const body = await request.text();
-      const res = await fetch(scriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body
-      });
-      const data = await res.text();
-      return new Response(data, {
-        status: res.status,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
-    }
-
-    // ROUTE: POST /api/proxy-imgbb (Optional Proxy for ImgBB)
-    if (path === 'proxy-imgbb' && request.method === 'POST') {
-      const apiKey = env.IMGBB_API_KEY;
-      if (!apiKey) {
-        return jsonResponse({ success: false, error: 'IMGBB_API_KEY variable is not configured on Cloudflare.' }, 500);
-      }
-      const formData = await request.formData();
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(apiKey)}`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      return jsonResponse(data, res.status);
     }
 
     return jsonResponse({ success: false, error: `Route /api/${path} not found.` }, 404);
