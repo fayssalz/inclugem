@@ -24,7 +24,18 @@ export function saveStoredInclusions(inclusions) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(inclusions));
     }
   } catch (err) {
-    console.error('Failed to save to localStorage:', err);
+    console.warn('Failed to save to localStorage (quota exceeded), stripping raw data URLs:', err);
+    try {
+      // Strip heavy base64 images for localStorage cache as fallback
+      const sanitized = inclusions.map(item => ({
+        ...item,
+        imageUrl: item.imageUrl && item.imageUrl.startsWith('data:image') ? '' : item.imageUrl,
+        thumbUrl: item.thumbUrl && item.thumbUrl.startsWith('data:image') ? '' : item.thumbUrl
+      }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+    } catch (err2) {
+      console.error('LocalStorage save fallback failed:', err2);
+    }
   }
 }
 
