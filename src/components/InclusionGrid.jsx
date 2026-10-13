@@ -12,23 +12,35 @@ export default function InclusionGrid({
   setCurrentPage,
   onSelectInclusion,
   selectedForCompare,
-  onToggleCompare
+  onToggleCompare,
+  isServerPaginated = false
 }) {
+  const effectiveTotal = filteredCount !== undefined ? filteredCount : totalCount;
+
   // Compute total pages based on the real total count, not the length of inclusions
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+  const totalPages = Math.ceil(effectiveTotal / pageSize) || 1;
 
   // Clamp currentPage to the valid range to avoid slicing beyond available items
   const safeCurrentPage = Math.min(currentPage, totalPages) || 1;
 
-  const startIndex = Math.min((safeCurrentPage - 1) * pageSize, inclusions.length);
-  const endIndex = Math.min(startIndex + pageSize, inclusions.length);
-  const currentItems = inclusions.slice(startIndex, endIndex);
+  // For server-paginated data (e.g. Live Lotus), the server already delivers the current page's items
+  const currentItems = isServerPaginated
+    ? inclusions
+    : inclusions.slice((safeCurrentPage - 1) * pageSize, safeCurrentPage * pageSize);
+
+  const startIndex = isServerPaginated
+    ? (safeCurrentPage - 1) * pageSize
+    : Math.min((safeCurrentPage - 1) * pageSize, inclusions.length);
+
+  const endIndex = isServerPaginated
+    ? Math.min(startIndex + inclusions.length, effectiveTotal)
+    : Math.min(startIndex + pageSize, inclusions.length);
 
   return (
     <main className="main-content">
       <div className="results-header">
         <div className="results-count">
-          Results <strong>{startIndex + 1}</strong> - {endIndex} of <strong>{inclusions.length}</strong> inclusions (Page {safeCurrentPage} of {totalPages})
+          Results <strong>{inclusions.length > 0 ? startIndex + 1 : 0}</strong> - {endIndex} of <strong>{effectiveTotal}</strong> inclusions (Page {safeCurrentPage} of {totalPages})
         </div>
 
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>

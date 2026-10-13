@@ -88,17 +88,13 @@ export default function App() {
     saveStoredInclusions(localInclusions);
   }, [localInclusions]);
 
-  // Sync window global for export tools
-  useEffect(() => {
-    window.__currentInclusions = searchMode === 'live' ? liveInclusions : localInclusions;
-  }, [localInclusions, liveInclusions, searchMode]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [filters, searchMode]);
 
-  // Execute Live Lotus Fetch when in 'live' mode or when filters/page change
+  // Execute Live Lotus Fetch when in 'live' mode or when server filters/page change
   useEffect(() => {
     if (searchMode !== 'live') return;
 
@@ -107,16 +103,18 @@ export default function App() {
     setLiveError(null);
 
     const startOffset = (currentPage - 1) * pageSize;
+    const serverFilters = {
+      gemtype: filters.gemtype,
+      origin: filters.origin,
+      enhancement: filters.enhancement,
+      search: filters.search
+    };
 
-    fetchLiveHyperionInclusions(filters, startOffset)
+    fetchLiveHyperionInclusions(serverFilters, startOffset)
       .then(data => {
         if (!isMounted) return;
-        setLiveInclusions(prev => {
-          const existingIds = new Set(prev.map(i => i.id));
-          const filtered = data.items.filter(item => !existingIds.has(item.id));
-          return [...prev, ...filtered];
-        });
-        setLiveTotalCount(prev => Math.max(prev, data.totalCount));
+        setLiveInclusions(data.items);
+        setLiveTotalCount(data.totalCount);
         setIsLoadingLive(false);
       })
       .catch(err => {
@@ -129,7 +127,7 @@ export default function App() {
     return () => {
       isMounted = false;
     };
-  }, [filters, currentPage, searchMode]);
+  }, [filters.gemtype, filters.origin, filters.enhancement, filters.search, currentPage, searchMode]);
 
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
@@ -188,6 +186,26 @@ export default function App() {
       return 0;
     });
   }, [localInclusions, filters]);
+
+  // Filter & Sort live inclusions for client-side attributes (lighting, sortBy)
+  const processedLiveInclusions = useMemo(() => {
+    let result = liveInclusions;
+    if (filters.lighting) {
+      const query = filters.lighting.toLowerCase();
+      result = result.filter(inc => (inc.lighting || '').toLowerCase().includes(query));
+    }
+    if (filters.sortBy) {
+      result = [...result].sort((a, b) => {
+        if (filters.sortBy === 'newest') return new Date(b.datePosted || 0) - new Date(a.datePosted || 0);
+        if (filters.sortBy === 'oldest') return new Date(a.datePosted || 0) - new Date(b.datePosted || 0);
+        if (filters.sortBy === 'gemType') return (a.gemType || '').localeCompare(b.gemType || '');
+        if (filters.sortBy === 'fovAsc') return parseFloat(a.fieldOfView || 0) - parseFloat(b.fieldOfView || 0);
+        if (filters.sortBy === 'fovDesc') return parseFloat(b.fieldOfView || 0) - parseFloat(a.fieldOfView || 0);
+        return 0;
+      });
+    }
+    return result;
+  }, [liveInclusions, filters.lighting, filters.sortBy]);
 
   // Save live inclusion to local collection
   const handleSaveToLocalDB = (incToSave) => {
@@ -264,9 +282,16 @@ export default function App() {
   };
 
   // Active dataset depending on mode
-  const displayInclusions = searchMode === 'live' ? liveInclusions : filteredLocalInclusions;
+  const displayInclusions = searchMode === 'live' ? processedLiveInclusions : filteredLocalInclusions;
   const displayTotalCount = searchMode === 'live' ? liveTotalCount : localInclusions.length;
-  const displayFilteredCount = searchMode === 'live' ? liveTotalCount : filteredLocalInclusions.length;
+  const displayFilteredCount = searchMode === 'live'
+    ? (filters.lighting ? processedLiveInclusions.length : liveTotalCount)
+    : filteredLocalInclusions.length;
+
+  // Sync window global for export tools
+  useEffect(() => {
+    window.__currentInclusions = displayInclusions;
+  }, [displayInclusions]);
 
   return (
     <div className="app-root">
@@ -318,7 +343,7 @@ export default function App() {
         </div>
       ) : (
         <InclusionGrid
-          inclusions={searchMode === 'live' ? liveInclusions : filteredLocalInclusions}
+          inclusions={displayInclusions}
           totalCount={displayTotalCount}
           filteredCount={displayFilteredCount}
           currentPage={currentPage}
@@ -326,6 +351,7 @@ export default function App() {
           setCurrentPage={setCurrentPage}
           onSelectInclusion={(inc) => setSelectedInclusion(inc)}
           selectedForCompare={selectedForCompare}
+          isServerPaginated={searchMode === 'live'}
           onToggleCompare={(inc) => {
             setSelectedForCompare(prev => {
               const exists = prev.some(i => i.id === inc.id);

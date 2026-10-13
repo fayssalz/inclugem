@@ -1,22 +1,26 @@
 export const GEM_TYPES = [
   "Alexandrite", "Amethyst", "Andradite", "Apatite", "Aquamarine", "Beryl",
-  "Black", "Cat's Eye", "Chrysoberyl", "Clinohumite", "Color-Change", "Crystal",
-  "Demantoid", "Diamond", "Diaspore", "Dyed", "Emerald", "Fei Cui", "Feldspar",
-  "Garnet", "Glass", "Glass Hybrid Ruby", "Glass Hybrid Star Ruby", "Goshenite",
-  "Grossular", "Hackmanite", "Haüyne", "Hiddenite", "Ice", "Imperial", "Jade",
-  "Jadeite", "Malaya", "Man-Made", "Mandarin", "Morganite", "Natural",
-  "Natural Bi-Color Sapphire", "Natural Black Star Sapphire", "Natural Color-Change Sapphire",
-  "Natural Color-Change Spinel", "Natural Color-Change Star Sapphire", "Natural Gold Sheen Star Sapphire",
-  "Natural Gold-Sheen Sapphire", "Natural Padparadscha Sapphire", "Natural Parti-Color Sapphire",
-  "Natural Ruby", "Natural Sapphire", "Natural Spinel", "Natural Star Ruby",
-  "Natural Star Sapphire", "Natural Star Spinel", "Natural Trapiche Ruby", "Natural Trapiche Sapphire",
-  "Nephrite", "Opal", "Orthoclase", "Other", "Paraíba", "Peridot", "Phenakite",
-  "Prehnite", "Pyralspite", "Pyrope-Almandine", "Pyrope-Spessartine", "Quartz",
-  "Quartzite", "Rock Crystal", "Sodalite", "Spessartine", "Spodumene", "Synthetic",
+  "Beryl, Emerald", "Trapiche Emerald", "Chrysoberyl", "Chrysoberyl, Cat's Eye",
+  "Citrine", "Clinohumite", "Demantoid", "Diamond", "Diaspore", "Doublet",
+  "Emerald", "Fei Cui", "Feldspar", "Garnet", "Garnet, Color-Change",
+  "Glass Hybrid Ruby", "Glass Hybrid Sapphire", "Glass Hybrid Star Ruby",
+  "Goshenite", "Grossular", "Hackmanite", "Haüyne", "Hiddenite", "Jade",
+  "Jadeite", "Kunzite", "Malaya", "Mandarin", "Man-Made • Glass", "Morganite",
+  "Natural • Glass", "Natural Bi-Color Sapphire", "Natural Black Star Sapphire",
+  "Natural Color-Change Sapphire", "Natural Color-Change Spinel",
+  "Natural Color-Change Star Sapphire", "Natural Gold Sheen Star Sapphire",
+  "Natural Gold-Sheen Sapphire", "Natural Padparadscha Sapphire",
+  "Natural Parti-Color Sapphire", "Natural Ruby", "Natural Sapphire",
+  "Natural Spinel", "Natural Star Ruby", "Natural Star Sapphire",
+  "Natural Star Spinel", "Natural Trapiche Ruby", "Natural Trapiche Sapphire",
+  "Nephrite", "Opal", "Opal • Black", "Orthoclase", "Paraíba", "Peridot",
+  "Phenakite", "Prehnite", "Pyralspite", "Pyrope-Almandine", "Pyrope-Spessartine",
+  "Quartz", "Quartzite", "Rock Crystal", "Rubellite", "Ruby, Treated",
+  "Sapphire, Treated", "Sodalite", "Spessartine", "Spodumene",
   "Synthetic Color-Change Sapphire", "Synthetic Ruby", "Synthetic Sapphire",
-  "Synthetic Spinel", "Synthetic Star Ruby", "Synthetic Star Sapphire", "Taaffeite",
-  "Tanzanite", "Tenebrescence", "Topaz", "Tourmaline", "Trapiche", "Triplet",
-  "Tsavorite", "Zircon", "Zoisite"
+  "Synthetic Spinel", "Synthetic Star Ruby", "Synthetic Star Sapphire",
+  "Tanzanite", "Topaz", "Tourmaline", "Triplet", "Tsavorite", "Zircon",
+  "Zoisite", "Zoisite • Tanzanite"
 ];
 
 export const ORIGINS = [
@@ -24,9 +28,9 @@ export const ORIGINS = [
   "Central Asia", "Colombia", "Czochralski", "East Africa", "Fei Cui Jade",
   "Floating Zone", "Flux", "Greenland", "Himalayan Arc", "Hydrothermal",
   "Kashmir", "Kenya", "Madagascar", "Malawi", "Metamorphic", "Montana",
-  "Mozambique", "Myanmar", "Nepal", "Nigeria", "No Origin", "None",
-  "Not Determinable", "Pakistan", "Paraíba-Type Tourmaline", "Russia",
-  "Rwanda", "Schist-Hosted", "Sri Lanka", "Tajikistan", "Tanzania",
+  "Mozambique", "Myanmar", "Nepal", "Nigeria", "No Origin",
+  "Pakistan", "Paraíba-Type Tourmaline", "Russia", "Rwanda",
+  "Schist-Hosted", "Sri Lanka", "Synthetic", "Tajikistan", "Tanzania",
   "Thailand", "Thailand/Cambodia", "Verneuil", "Vietnam", "Zambia"
 ];
 
